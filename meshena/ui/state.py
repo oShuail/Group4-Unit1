@@ -23,9 +23,10 @@ def show_flash():
         st.toast(MSG.get(msg, msg))
 
 
-def enter_plan(plan_id):
+def enter_plan(plan_id, host_key=""):
     """Remember which plan I am in (hosting or joined) and open its page."""
     S["my_plan_id"] = plan_id
+    S["my_host_key"] = host_key
     S["view"] = "plan"
     S["last_phase"] = None   # filled in by the countdown on the plan page
     S["last_secs"] = None
@@ -34,6 +35,7 @@ def enter_plan(plan_id):
 def leave_plan_state():
     """Forget my plan and go back to the feed."""
     S["my_plan_id"] = None
+    S["my_host_key"] = ""
     S["view"] = "feed"
 
 

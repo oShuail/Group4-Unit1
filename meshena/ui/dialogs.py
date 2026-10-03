@@ -46,13 +46,13 @@ def post_dialog(board):
         for error in errors:                         # each error gets its own box
             st.error(MSG.get(error, error))
         if not errors:
-            ok, msg, plan_id = board.create_plan(title, category, place, wait, description,
-                                                 viewer(), duration, capacity)
+            ok, msg, plan_id, host_key = board.create_plan(title, category, place, wait, description,
+                                                           viewer(), duration, capacity)
             flash(msg)
             if ok:
                 for key in POST_KEYS:                # empty the form for next time
                     S.pop(key, None)
-                enter_plan(plan_id)
+                enter_plan(plan_id, host_key)
             st.rerun()                               # closes the dialog
 
 
@@ -103,7 +103,7 @@ def confirm_cancel_dialog(board, plan_id):
     if back.button(T["go_back"], key="dlg_cancel_back", type="primary"):
         st.rerun()
     if cancel.button(T["cancel"], key="dlg_cancel_yes"):
-        ok, msg = board.cancel_plan(plan_id, viewer())
+        ok, msg = board.cancel_plan(plan_id, viewer(), S.get("my_host_key", ""))
         flash(msg)
         if ok:
             leave_plan_state()
