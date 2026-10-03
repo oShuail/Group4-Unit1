@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+/* ---- Base: Tajawal, right-to-left, light purple-grey page ---- */
+html, body, .stApp, button, input, textarea { font-family: 'Tajawal', sans-serif !important; }
+.stApp, [data-testid="stDialog"], [data-testid="stToast"] { direction: rtl; text-align: right; }
+.stApp { background: #F7F6FB; color: #1F1A33; }
+/* Streamlit sets its own left alignment on markdown, widget labels and inputs: force right-to-left.
+   (Selectors are Streamlit's internal data-testid names: fragile, re-check after upgrades.) */
+[data-testid="stMarkdownContainer"], [data-testid="stMarkdownContainer"] p,
+[data-testid="stWidgetLabel"], [data-testid="stWidgetLabel"] p, [data-testid="stCaptionContainer"],
+[data-testid="stAlert"], [data-testid="stToast"] { direction: rtl; text-align: right; }
+input, textarea { direction: rtl; text-align: right; }
+[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="collapsedControl"] { display: none; }
+/* Content limited to 1200px and centered */
+[data-testid="stMainBlockContainer"] { max-width: 1100px; padding: 32px 32px 56px; }
+html { font-size: 16px; }
+[data-testid="stHorizontalBlock"] { gap: 16px; }
+.stButton button, [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {
+    width: 100%; height: 50px; border-radius: 999px; font-weight: 700; font-size: 16px; }
+
+/* ---- Top bar: search and name are fully rounded pills ---- */
+/* data-baseweb is Streamlit's input wrapper (fragile: re-check after upgrades) */
+[class*="st-key-search_box"] [data-baseweb="input"] {
+    background: #EDEAF5; border: none; border-radius: 999px; height: 50px; }
+[class*="st-key-search_box"] input { font-size: 16px; }
+[class*="st-key-search_box"] [data-baseweb="base-input"] { background: transparent; }
+[class*="st-key-search_box"] input {
+    padding-inline-start: 48px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none' stroke='%236B6B76' stroke-width='2' stroke-linecap='round'><circle cx='10' cy='10' r='7'/><path d='M16 16l4 4'/></svg>") no-repeat right 16px center; }
+[class*="st-key-name_pill"] button { background: #FFFFFF; border: 1px solid #D9D0F2; color: #1F1A33; }
+[class*="st-key-name_pill"] button:hover { border-color: #512ABA; color: #512ABA; }
+
+/* ---- Pin card: keyed container (st-key-pin_<id>), radius 20, soft shadow, lift on hover ---- */
+[class*="st-key-pin_"] {
+    background: #FFFFFF; border: none !important; border-radius: 20px; padding: 8px;
+    box-shadow: 0 2px 12px rgba(17,17,17,.06); transition: transform .15s; margin-bottom: 16px; }
+[class*="st-key-pin_"]:hover { transform: translateY(-2px); }
+[class*="st-key-pin_"] [data-testid="stVerticalBlock"] { gap: 12px; }
+[class*="st-key-pin_"] [data-testid="stButton"] { padding: 0 8px 8px; }
+[class*="st-key-leave_"] button { background: #FFFFFF; border: 1.5px solid #512ABA; color: #512ABA; }
+[class*="st-key-cancel_"] button, .st-key-plan_cancel button {
+    background: #FFFFFF; border: 1.5px solid #C0392B; color: #C0392B; }
+.st-key-plan_leave button { background: #FFFFFF; border: 1.5px solid #512ABA; color: #512ABA; }
+.st-key-dlg_leave_yes button { background: #FFFFFF; border: 1.5px solid #512ABA; color: #512ABA; }
+.st-key-dlg_cancel_yes button { background: #C0392B; border: none; color: #FFFFFF; }
+
+/* ---- Cover (image or color tile) with the time pill on top ---- */
+.cover { position: relative; border-radius: 16px; overflow: hidden; }
+.cover img { width: 100%; display: block; object-fit: cover; }
+.tile { display: flex; align-items: flex-end; padding: 16px; font-size: 26px; font-weight: 700; color: #1F1A33; }
+.time-pill { background: #FFFFFF; color: #1F1A33; border-radius: 999px; padding: 4px 16px;
+    font-size: 14px; font-weight: 700; white-space: nowrap; }
+.cover .time-pill { position: absolute; top: 16px; inset-inline-start: 16px; }
+.time-pill.soon { background: #512ABA; color: #FFFFFF; }
+
+/* ---- Card text ---- */
+.pin-body { padding: 12px 12px 0; }
+.pin-title { font-size: 19px; font-weight: 700; color: #1F1A33; margin-bottom: 6px; line-height: 1.4; }
+.row-icon { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #6B6B76; margin-top: 6px; }
+.ic { display: inline-flex; color: #512ABA; }
+.ic svg { width: 16px; height: 16px; }
+.pin-desc { font-size: 15px; line-height: 1.6; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden; }
+.pin-people { display: flex; align-items: center; gap: 12px; margin: 16px 0 4px; font-size: 14px; color: #6B6B76; }
+.pin-people b { color: #1F1A33; display: block; }
+
+/* ---- Avatar stack: host ring, viewer filled, overlapping circles ---- */
+.avatars { display: flex; }
+.av { width: 32px; height: 32px; border-radius: 50%; background: #F0EBFC; color: #512ABA; font-size: 13px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center; margin-inline-start: -8px; }
+.av:first-child { margin-inline-start: 0; }
+.av.host { border: 2px solid #512ABA; background: #FFFFFF; }
+.av.me { background: #512ABA; color: #FFFFFF; }
+.av.more { background: #E4E2EA; color: #6B6B76; }
+
+/* ---- Notice above the top bar when I am already in a plan ---- */
+.notice { background: #F0EBFC; color: #512ABA; border-radius: 999px; padding: 8px 20px; margin-bottom: 16px;
+    font-size: 14px; font-weight: 700; text-align: center; }
+
+/* ---- Category chips ---- */
+[data-testid="stButtonGroup"] { gap: 8px; margin-bottom: 8px; }
+
+/* ---- My plan card: the dedicated place at the top of the feed ---- */
+.st-key-my_plan { background: #F0EBFC; border: 1.5px solid #D9D0F2; border-radius: 20px;
+    padding: 20px 28px; margin-bottom: 24px; }
+.mp-role { font-size: 14px; color: #512ABA; font-weight: 700; }
+.mp-title { font-size: 20px; font-weight: 700; margin: 4px 0 10px; }
+.mp-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+/* ---- Empty state ---- */
+.st-key-empty_box { background: #FFFFFF; border-radius: 20px; padding: 48px 16px 32px; }
+.empty { text-align: center; padding: 0 16px 24px; color: #6B6B76; font-size: 17px; }
+.empty img { width: 120px; opacity: .25; display: block; margin: 0 auto 16px; }
+
+/* ---- Name page ---- */
+.bg-mark { position: fixed; inset: 0; margin: auto; width: min(70vw, 520px); opacity: .06; pointer-events: none; }
+.name-logo { display: block; height: 96px; margin: 8vh auto 24px; position: relative; }
+.st-key-name_card { max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 24px; padding: 32px 24px;
+    box-shadow: 0 2px 12px rgba(17,17,17,.06); position: relative; }
+.name-lead { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 24px; }
+.name-privacy { font-size: 13px; color: #6B6B76; text-align: center; margin-top: 8px; }
+.st-key-name_card input { text-align: center; font-size: 16px; }
+
+/* ---- Plan page (host and joined): ticket-style card ---- */
+.st-key-plan_card, .st-key-people_panel { background: #FFFFFF; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(17,17,17,.06); margin-bottom: 16px; }
+.st-key-plan_card [data-testid="stVerticalBlock"] { gap: 0; }
+.st-key-people_panel { padding: 16px 24px; }
+.hero { position: relative; overflow: hidden; text-align: center; padding: 32px 16px 24px; }
+.hero-t { font-size: 28px; font-weight: 700; }
+.hero-s { font-size: 16px; color: #6B6B76; margin-top: 4px; }
+.hourglass, .check { width: 72px; height: 72px; margin: 0 auto 8px; display: block; }
+.hourglass { display: flex; align-items: center; justify-content: center; border-radius: 22px;
+    background: rgba(255,255,255,.8); color: #512ABA; }
+.hourglass svg { width: 36px; height: 36px; }
+.check circle { fill: #512ABA; transform-origin: center; animation: pop .45s cubic-bezier(.2,1.5,.4,1); }
+.check path { fill: none; stroke: #FFFFFF; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 48; stroke-dashoffset: 48; animation: draw .5s .35s ease forwards; }
+.confetti i { position: absolute; top: -14px; width: 8px; height: 14px; border-radius: 2px; opacity: 0;
+    animation: fall 1.9s ease-in 1 forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(210px) rotate(320deg); opacity: 0; } }
+.perf { position: relative; height: 24px; background: #FFFFFF; }
+.perf:before, .perf:after { content: ""; position: absolute; top: 0; width: 24px; height: 24px; border-radius: 50%; background: #F7F6FB; }
+.perf:before { right: -12px; } .perf:after { left: -12px; }
+.perf span { position: absolute; top: 12px; right: 18px; left: 18px; border-top: 2px dashed #D9D0F2; }
+.tk-body { padding: 0 24px 16px; }
+.tk-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.tk-body .row-icon { margin-top: 8px; }
+
+/* ---- Countdown bar ---- */
+.cd-bar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 24px 20px; background: #F0EBFC; color: #512ABA; }
+.cd-label { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: #512ABA; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.cd-clock { font-size: 24px; direction: ltr; unicode-bidi: isolate; }
+.cd-prog { position: absolute; right: 0; left: 0; bottom: 0; height: 4px; background: #D9D0F2; }
+.cd-prog i { display: block; height: 100%; background: #512ABA; transition: width 1s linear; }
+
+/* ---- Participants panel ---- */
+.panel-h { font-size: 17px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.count-pill { background: #F0EBFC; color: #512ABA; border-radius: 999px; padding: 0 12px; font-size: 13px; }
+.person { display: flex; align-items: center; gap: 16px; padding: 8px 0; border-top: 1px solid #F0EBFC; }
+.person .av { margin: 0; }
+.pn { flex: 1; font-size: 16px; }
+.tag-host { background: #512ABA; color: #FFFFFF; border-radius: 999px; padding: 2px 12px; font-size: 12px; }
+.tag-me { background: #F0EBFC; color: #512ABA; border-radius: 999px; padding: 2px 12px; font-size: 12px; }
+
+/* ---- Dialogs: white rounded box, centered icon + heading + two equal buttons ---- */
+[data-testid="stDialog"] div[role="dialog"] { border-radius: 24px; max-width: 440px; padding: 8px 16px 20px;
+    background: #FFFFFF; }
+[data-testid="stDialog"] h2 { font-size: 22px; font-weight: 700; }
+[data-testid="stDialog"] [role="dialog"]:has(.dlg-head) h2 { font-size: 0; padding: 0; }  /* small dialogs: no title line */
+.dlg-head { text-align: center; padding: 8px 8px 20px; }
+.dlg-icon { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px; display: flex;
+    align-items: center; justify-content: center; }
+.dlg-icon svg { width: 32px; height: 32px; }
+.dlg-icon.soft { background: #F0EBFC; color: #512ABA; }
+.dlg-icon.danger { background: #FBE9E7; color: #C0392B; }
+.dlg-h { font-size: 21px; font-weight: 700; color: #1F1A33; }
+[data-testid="stMarkdownContainer"] .dlg-text { font-size: 16px; color: #6B6B76; margin: 8px 0 0; text-align: center; }
+.dlg-icon { border-radius: 20px; }                                   /* rounded square, not a circle */
+/* Dialog buttons: rectangles that fill the window, two equal halves side by side */
+[data-testid="stDialog"] [data-testid="stHorizontalBlock"] { gap: 12px; }
+[data-testid="stDialog"] [data-testid="stColumn"] { min-width: 0; }
+[data-testid="stDialog"] [data-testid="stElementContainer"]:has(.stButton),
+[data-testid="stDialog"] .stButton { width: 100%; }
+[data-testid="stDialog"] .stButton button { width: 100%; height: 52px; border-radius: 12px; }
+[data-testid="stDialog"] .stButton button p { font-size: 16px; }
+
+/* ---- Post dialog ---- */
+/* Name shown in a box (not floating) with a small note under it */
+.name-box { display: flex; align-items: center; gap: 8px; background: #F0EBFC; border-radius: 12px;
+    padding: 12px 16px; font-size: 15px; }
+.name-box b { margin-inline-start: auto; color: #512ABA; }
+.name-note { font-size: 13px; color: #6B6B76; margin: 6px 4px 8px; }
+/* Slider groups: each in its own box. Slider forced left-to-right so the dot sits on the filled track,
+   and its floating value label is hidden (the pill above shows the value). */
+.st-key-box_wait, .st-key-box_duration { background: #F7F6FB; border: 1px solid #E4DFF3; border-radius: 12px;
+    padding: 12px 16px 4px; }
+[data-testid="stSlider"], [data-testid="stSelectSlider"] { direction: ltr; }
+[data-testid="stThumbValue"] { display: none; }
+.wait-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.pill-live { background: #F0EBFC; color: #512ABA; border-radius: 999px; padding: 2px 16px; }
+
+/* ---- Moving animation off for people who ask for it ---- */
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .check path { stroke-dashoffset: 0; }
+}
+@media (max-width: 640px) { [data-testid="stMainBlockContainer"] { padding: 16px 16px 32px; } }
