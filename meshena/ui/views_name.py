@@ -18,7 +18,6 @@ def render_name_page():
             name = st.text_input(T["name_hint"], placeholder=T["name_hint"], max_chars=24,
                                  label_visibility="collapsed")
             submitted = st.form_submit_button(T["name_btn"], type="primary")
-        st.markdown(f'<div class="name-privacy">{T["name_privacy"]}</div>', unsafe_allow_html=True)
         if submitted:
             if name.strip():
                 S["name"] = name.strip()

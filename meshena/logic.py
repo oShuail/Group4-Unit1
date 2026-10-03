@@ -5,13 +5,16 @@ import secrets
 import threading
 from datetime import datetime, timedelta
 
-MIN_START_MIN = 1            # a plan starts 1 to 60 minutes from now
+MIN_START_MIN = 1            
 MAX_START_MIN = 60
-MIN_DURATION_MIN = 5         # and lasts 5 to 240 minutes
+
+MIN_DURATION_MIN = 5         
 MAX_DURATION_MIN = 240
-MIN_CAPACITY = 2             # 2 to 50 people, host included
-MAX_CAPACITY = 50
-EXPIRY_GRACE_SECONDS = 15    # a card stays visible this long after its wait ends
+
+MIN_CAPACITY = 2             
+MAX_CAPACITY = 12
+
+EXPIRY_GRACE_SECONDS = 10
 CATEGORIES = ["Lunch", "Study", "Work", "Discussion", "Tuwaiq Talk", "Other"]
 
 
