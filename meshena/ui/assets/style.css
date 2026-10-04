@@ -1,0 +1,21 @@
+/* Never type a less-than sign in this file, or Streamlit ignores the whole file. */
+
+.stApp, [data-testid="stDialog"], [data-testid="stToast"], [data-testid="stPopoverBody"] { direction: rtl; }
+[data-testid="stElementContainer"], input, textarea { text-align: right; }
+
+[data-testid="stHeader"] { display: none; }
+[data-testid="stMainBlockContainer"] { max-width: 1200px; padding-top: 2rem; }
+
+[data-testid="stElementToolbar"] { display: none; }
+
+[data-testid="InputInstructions"] { display: none; }
+
+[class*="st-key-card_"], .st-key-name_card, .st-key-plan_card, .st-key-people_panel, .st-key-empty_box {
+    background: white; box-shadow: 0 4px 16px rgba(31, 26, 51, .06); }
+[class*="st-key-card_"]:hover { box-shadow: 0 8px 24px rgba(81, 42, 186, .14); }
+
+[data-testid="stImage"] img { border-radius: 12px; }
+
+.st-key-my_plan { background: #F0EBFC; }
+
+[class*="st-key-danger_"] button { color: #C0392B; border-color: #F1C9C4; }

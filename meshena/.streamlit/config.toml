@@ -1,0 +1,19 @@
+[theme]
+base = "light"
+primaryColor = "#512ABA"
+backgroundColor = "#F7F6FB"
+secondaryBackgroundColor = "#F0EBFC"
+textColor = "#1F1A33"
+borderColor = "#E4DFF3"
+violetColor = "#512ABA"
+redColor = "#C0392B"
+font = "IBM Plex Sans Arabic:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+baseRadius = "0.75rem"
+buttonRadius = "full"
+showWidgetBorder = false
+headingFontWeights = [700, 700, 700, 700, 600, 600]
+headingFontSizes = ["2.25rem", "1.75rem", "1.375rem", "1.125rem", "1rem", "0.875rem"]
+metricValueFontWeight = 700
+
+[client]
+toolbarMode = "minimal"
