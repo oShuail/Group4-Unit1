@@ -1,31 +1,21 @@
-"""dummy_logic.py - temporary stand-in for logic.py.
-
-Same names, arguments and return types as the contract, so the UI only needs
-to change one import line later. Plans live in memory only.
-Messages stay in English (the UI translates them).
-"""
 from datetime import datetime, timedelta
 import math
 
-# ---- Constants (contract) ----
 MIN_START_MIN = 1
 MAX_START_MIN = 60
 MIN_DURATION_MIN = 5
 MAX_DURATION_MIN = 240
 MIN_CAPACITY = 2
 MAX_CAPACITY = 50
-EXPIRY_GRACE_SECONDS = 15   # a card stays visible this long after the wait ends
+EXPIRY_GRACE_SECONDS = 15
 CATEGORIES = ["Lunch", "Study", "Work", "Discussion", "Tuwaiq Talk", "Other"]
 
 
 def _seconds(delta):
-    """Whole seconds in a timedelta, rounded up, never below zero."""
     return max(0, math.ceil(delta.total_seconds()))
 
 
 class Plan:
-    """One post: a short plan that starts in a few minutes and then lasts a while."""
-
     def __init__(self, plan_id, title, category, place, description, host,
                  starts_in_min, duration_min, capacity=10):
         self.id = plan_id
@@ -36,9 +26,9 @@ class Plan:
         self.host = host
         self.starts_in_min = starts_in_min
         self.duration_min = duration_min
-        self.capacity = capacity   # most people allowed (host included)
+        self.capacity = capacity
         self.created_at = datetime.now()
-        self.attendees = [host]  # the host is always first
+        self.attendees = [host]
 
     def start_time(self):
         return self.created_at + timedelta(minutes=self.starts_in_min)
@@ -47,7 +37,6 @@ class Plan:
         return self.start_time() + timedelta(minutes=self.duration_min)
 
     def phase(self, now):
-        """'waiting' (joinable), 'running' (started) or 'ended'."""
         if now < self.start_time():
             return "waiting"
         if now < self.ends_at():
@@ -61,7 +50,6 @@ class Plan:
         return _seconds(self.ends_at() - now)
 
     def minutes_left(self, now):
-        """Whole minutes until the start (rounded up)."""
         return math.ceil(self.seconds_to_start(now) / 60)
 
     def is_active(self, now):
@@ -78,16 +66,12 @@ class Plan:
 
 
 class PlanBoard:
-    """The shared board that holds every plan."""
-
     def __init__(self):
         self.plans = []
         self.next_id = 1
         self._add_demo_data()
 
-    # ---- helpers ----
     def _add_demo_data(self):
-        # title, category, place, host, starts in, duration, capacity, other attendees, description
         demo = [
             ("قهوة سريعة", "Other", "بوابة الكافيه", "Huda", 1, 30, 4, [],
              "نرجع للمحاضرة قريباً."),
@@ -116,14 +100,12 @@ class PlanBoard:
             self.next_id += 1
 
     def _alive(self, plan_id):
-        """Return the plan if it is waiting or running, otherwise None."""
         now = datetime.now()
         for plan in self.plans:
             if plan.id == plan_id and plan.phase(now) != "ended":
                 return plan
         return None
 
-    # ---- contract methods ----
     def validate_input(self, title, place, host, starts_in_min, duration_min=60, capacity=10):
         errors = []
         if not host.strip():
@@ -152,7 +134,6 @@ class PlanBoard:
         return True, "Plan posted", plan.id
 
     def get_active_plans(self):
-        """Waiting plans, plus plans inside the grace window. Soonest first."""
         now = datetime.now()
         grace = timedelta(seconds=EXPIRY_GRACE_SECONDS)
         visible = [p for p in self.plans if now < p.start_time() + grace]
@@ -164,7 +145,6 @@ class PlanBoard:
                 if word in p.title.lower() or word in p.place.lower() or word in p.category.lower()]
 
     def get_plan_for_participant(self, plan_id, name):
-        """The plan (waiting or running) if this name is in it, otherwise None."""
         plan = self._alive(plan_id)
         if plan is not None and plan.has_joined(name):
             return plan
@@ -204,12 +184,10 @@ class PlanBoard:
         return True, "Plan cancelled"
 
     def prune_ended_plans(self):
-        """Remove plans whose time is over."""
         now = datetime.now()
         self.plans = [p for p in self.plans if p.phase(now) != "ended"]
 
     def rename_person(self, old, new):
-        """Change a person's name everywhere (host name and attendee lists)."""
         new = new.strip()
         if not new:
             return False, "Enter your name first"
@@ -219,8 +197,6 @@ class PlanBoard:
             plan.attendees = [new if person == old else person for person in plan.attendees]
         return True, "Name updated"
 
-    # ---- dummy only ----
     def demo_fast_forward(self, minutes):
-        """Move every plan back in time so phases can be tested quickly."""
         for plan in self.plans:
             plan.created_at -= timedelta(minutes=minutes)

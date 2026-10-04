@@ -1,5 +1,3 @@
-"""logic.py - the rules of Join Me. No Streamlit in this file."""
-
 import math
 import secrets
 import threading
@@ -19,8 +17,6 @@ CATEGORIES = ["Lunch", "Study", "Work", "Discussion", "Tuwaiq Talk", "Other"]
 
 
 class Plan:
-    """One plan. Phases: waiting (before start), running, ended."""
-
     def __init__(self, plan_id, title, category, place, description, host,
                  starts_in_min, duration_min, capacity, host_key):
         self.id = plan_id
@@ -32,9 +28,9 @@ class Plan:
         self.starts_in_min = starts_in_min
         self.duration_min = duration_min
         self.capacity = capacity
-        self.host_key = host_key              # secret code only the host's browser keeps
+        self.host_key = host_key   # secret: only the host's browser has it, cancel_plan checks it
         self.created_at = datetime.now()
-        self.attendees = [host]               # the host is always first
+        self.attendees = [host]
 
     def start_time(self):
         return self.created_at + timedelta(minutes=self.starts_in_min)
@@ -43,7 +39,6 @@ class Plan:
         return self.start_time() + timedelta(minutes=self.duration_min)
 
     def phase(self, now):
-        """Return "waiting", "running" or "ended"."""
         if now < self.start_time():
             return "waiting"
         elif now < self.ends_at():
@@ -58,11 +53,9 @@ class Plan:
         return max(0, int((self.ends_at() - now).total_seconds()))
 
     def minutes_left(self, now):
-        """Minutes until the start, rounded up."""
         return math.ceil(self.seconds_to_start(now) / 60)
 
     def has_joined(self, name):
-        """True if this name is already in the plan (any letter case)."""
         for person in self.attendees:
             if person.lower() == name.strip().lower():
                 return True
@@ -76,25 +69,20 @@ class Plan:
 
 
 class PlanBoard:
-    """All the plans, shared by every browser.
-
-    Each public method takes the lock once. find_alive does not take it,
-    so only call it inside "with self.lock" (a Lock can't be taken twice)."""
-
     def __init__(self):
-        self.plans = {}                 # plan id -> Plan
+        self.plans = {}
         self.next_id = 1
         self.lock = threading.Lock()
 
+    # Only call this inside "with self.lock". It does not take the lock itself,
+    # and taking the same lock twice freezes the app.
     def find_alive(self, plan_id):
-        """The plan if it is waiting or running, otherwise None."""
         plan = self.plans.get(plan_id)
         if plan is None or plan.phase(datetime.now()) == "ended":
             return None
         return plan
 
     def validate_input(self, title, place, host, starts_in_min, duration_min=60, capacity=10):
-        """Return a list of every error (empty list = all good)."""
         errors = []
         if host.strip() == "":
             errors.append("Enter your name first")
@@ -112,15 +100,13 @@ class PlanBoard:
 
     def create_plan(self, title, category, place, starts_in_min, description, host,
                     duration_min=60, capacity=10):
-        """Return (ok, message, plan_id, host_key). On failure: first error, None, "".
-        Keep the host_key: it is the only proof of being the host."""
         errors = self.validate_input(title, place, host, starts_in_min, duration_min, capacity)
         if errors:
             return (False, errors[0], None, "")
 
         if category not in CATEGORIES:
             category = "Other"
-        host_key = secrets.token_hex(4)          # random code like "a3f9c21e"
+        host_key = secrets.token_hex(4)
 
         with self.lock:
             plan_id = self.next_id
@@ -131,7 +117,6 @@ class PlanBoard:
         return (True, "Plan posted", plan_id, host_key)
 
     def get_active_plans(self):
-        """Plans that are waiting (or started less than 15 s ago), soonest first."""
         now = datetime.now()
         grace = timedelta(seconds=EXPIRY_GRACE_SECONDS)
         with self.lock:
@@ -139,17 +124,15 @@ class PlanBoard:
         return sorted(visible, key=lambda plan: plan.start_time())
 
     def search_plans(self, keyword):
-        """Visible plans with the keyword in the title, place or category."""
         keyword = keyword.strip().lower()
         matches = []
         for plan in self.get_active_plans():
             text = f"{plan.title} {plan.place} {plan.category}".lower()
-            if keyword in text:                  # an empty keyword matches everything
+            if keyword in text:
                 matches.append(plan)
         return matches
 
     def get_plan_for_participant(self, plan_id, name):
-        """The plan (waiting or running) if this name is in it, otherwise None."""
         with self.lock:
             plan = self.find_alive(plan_id)
             if plan is not None and plan.has_joined(name):
@@ -157,7 +140,6 @@ class PlanBoard:
             return None
 
     def join_plan(self, plan_id, name):
-        """Join a plan. Only while it is waiting. Return (ok, message)."""
         name = name.strip()
         with self.lock:
             plan = self.find_alive(plan_id)
@@ -174,7 +156,6 @@ class PlanBoard:
                 return (True, "You joined")
 
     def leave_plan(self, plan_id, name):
-        """Leave a plan (waiting or running). Return (ok, message)."""
         name = name.strip()
         with self.lock:
             plan = self.find_alive(plan_id)
@@ -192,7 +173,6 @@ class PlanBoard:
                 return (True, "You left the plan")
 
     def cancel_plan(self, plan_id, name, host_key):
-        """Delete the plan if name is the host AND host_key matches. Return (ok, message)."""
         with self.lock:
             plan = self.find_alive(plan_id)
             if plan is None:
@@ -204,18 +184,16 @@ class PlanBoard:
                 return (True, "Plan cancelled")
 
     def prune_ended_plans(self):
-        """Delete every plan that has ended."""
         now = datetime.now()
         with self.lock:
             ended = []
             for plan_id, plan in self.plans.items():
                 if plan.phase(now) == "ended":
                     ended.append(plan_id)
-            for plan_id in ended:                # delete after the loop, not inside it
+            for plan_id in ended:   # delete after the loop: changing a dict while looping over it crashes
                 del self.plans[plan_id]
 
     def rename_person(self, old, new):
-        """Change a name in every plan. Return (ok, message)."""
         old = old.strip().lower()
         new = new.strip()
         if new == "":
@@ -229,8 +207,8 @@ class PlanBoard:
                         plan.attendees[i] = new
         return (True, "Name updated")
 
+    # For the tests only. The app never calls this.
     def demo_fast_forward(self, minutes):
-        """FOR TESTS ONLY: move every plan back in time. The app never calls this."""
         with self.lock:
             for plan in self.plans.values():
                 plan.created_at -= timedelta(minutes=minutes)

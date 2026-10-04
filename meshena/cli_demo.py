@@ -1,27 +1,12 @@
-"""
-cli_demo.py - Join Me in the console (real input() and print()).
-
-Run it with:  python cli_demo.py
-It uses the same PlanBoard as the web app, so it is also a quick way to test logic.py.
-
-Pseudocode:
-    ask for my name once
-    keep showing the menu until I choose Exit
-        post / show / search / join / leave / cancel
-        ask with input(), call the board, print the message it returns
-"""
-
 from datetime import datetime
 
 from logic import PlanBoard, CATEGORIES
 
-# One line per plan. A lambda is a tiny function without a name.
 line = lambda p: (f"[{p.id}] {p.title} @ {p.place} | {p.category} | {status(p)} | "
                   f"{p.count()}/{p.capacity} people: {', '.join(p.attendees)}")
 
 
 def status(plan):
-    """Return a short text about where the plan is in time."""
     now = datetime.now()
     phase = plan.phase(now)
     if phase == "waiting":
@@ -33,8 +18,6 @@ def status(plan):
 
 
 def ask_number(text, low, high, default):
-    """Ask for a whole number between low and high. Empty answer = default.
-    Keeps asking until the answer is valid, then returns it as an int."""
     while True:
         answer = input(f"{text} ({low}-{high}, Enter = {default}): ").strip()
         if answer == "":
@@ -46,7 +29,6 @@ def ask_number(text, low, high, default):
 
 
 def show_plans(plans):
-    """Print the plans, or a note if there are none."""
     if len(plans) == 0:
         print("No plans right now.")
     for plan in plans:
@@ -54,7 +36,6 @@ def show_plans(plans):
 
 
 def post_plan(board, name, keys):
-    """Ask for the fields and create the plan. Remember the host key."""
     title = input("Title: ")
     print("Categories:", ", ".join(f"{i + 1}={c}" for i, c in enumerate(CATEGORIES)))
     choice = ask_number("Category number", 1, len(CATEGORIES), len(CATEGORIES))
@@ -67,7 +48,7 @@ def post_plan(board, name, keys):
     ok, msg, plan_id, host_key = board.create_plan(title, CATEGORIES[choice - 1], place, wait,
                                                    description, name, duration, capacity)
     if ok:
-        keys[plan_id] = host_key        # only the poster keeps this secret code
+        keys[plan_id] = host_key
         print(f"{msg}: plan number {plan_id}")
     else:
         print(msg)
@@ -75,7 +56,7 @@ def post_plan(board, name, keys):
 
 def main():
     board = PlanBoard()
-    keys = {}                            # plan id -> host key, for the plans I posted
+    keys = {}
     name = input("Your name: ").strip()
 
     while True:

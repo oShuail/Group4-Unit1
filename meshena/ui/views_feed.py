@@ -1,49 +1,53 @@
-"""views_feed.py - the home page: top bar, filter chips, my-plan card, and the plan cards."""
 from datetime import datetime
-from html import escape
 
 import streamlit as st
 
-from ui.components import (ASSETS, avatar_stack_html, bdi, cover_html, image_data_uri, row_html,
-                        CLOCK, PIN)
+from ui.components import CAT_ICON, LOGO, LOGO_MARK, category_label, cover
 from ui.contract import CATEGORIES
-from ui.dialogs import confirm_cancel_dialog, confirm_leave_dialog, post_dialog, rename_dialog
+from ui.dialogs import confirm_cancel_dialog, confirm_leave_dialog, post_dialog
 from ui.state import S, enter_plan, flash, open_plan_view, show_flash, viewer
-from ui.strings import CAT_AR, CAT_EN, T, ar, fmt_duration
+from ui.strings import CAT_AR, CAT_EN, MSG, T, ar, fmt_duration
 
-REFRESH_SECONDS = 10   # how often the feed (and its countdown texts) refresh themselves
-COLUMNS = 3            # cards per row on desktop (Streamlit stacks them on phones)
+REFRESH_SECONDS = 10
+COLUMNS = 3
 
 
-# ---------------- Top bar ----------------
+def render_name_menu(board):
+    with st.popover(viewer(), icon=":material/account_circle:", key="profile"):
+        st.markdown(f"**{T['dlg_rename']}**")
+        new_name = st.text_input(T["f_new_name"], value=viewer(), max_chars=24, label_visibility="collapsed")
+        if st.button(T["save"], key="rename_save", type="primary", width="stretch"):
+            ok, msg = board.rename_person(viewer(), new_name)
+            if ok:
+                S["name"] = new_name.strip()
+                flash(msg)
+                st.rerun()
+            else:
+                st.error(MSG.get(msg, msg))
+
+
 def render_top_bar(board):
-    """Notice (if I am in a plan), then logo, search, name pill and 'Post a plan'. Returns the keyword."""
-    in_plan = S.get("my_plan_id") is not None   # one plan at a time
-    if in_plan:
-        st.markdown(f'<div class="notice">{T["in_plan_notice"]}</div>', unsafe_allow_html=True)
-    logo, search, name, post = st.columns([1.2, 4.5, 1.8, 1.5], vertical_alignment="center")
-    logo.image(str(ASSETS / "logo_full.png"), width=140)
-    keyword = search.text_input(T["search"], key="search_box", placeholder=T["search"],
-                                label_visibility="collapsed").strip()
-    if name.button(viewer(), key="name_pill", icon=":material/person:"):
-        S["rename_input"] = viewer()
-        rename_dialog(board)
-    if post.button(T["post"], key="open_post", type="primary", disabled=in_plan):
-        post_dialog(board)
-    return CAT_EN.get(keyword, keyword)          # lets people search with the Arabic category name
+    in_plan = S.get("my_plan_id") is not None
+    with st.container(horizontal=True, vertical_alignment="center", gap="medium"):
+        st.image(LOGO, width=118)
+        keyword = st.text_input(T["search"], placeholder=T["search"], icon=":material/search:",
+                                live=True, label_visibility="collapsed")
+        render_name_menu(board)
+        if st.button(T["post"], key="open_post", type="primary", icon=":material/add:", disabled=in_plan):
+            post_dialog(board)
+    st.markdown(f"## {T['greet'].format(name=viewer())}")
+    st.caption(T["greet_sub"])
+    keyword = keyword.strip()
+    return CAT_EN.get(keyword, keyword)
 
 
 def render_category_filter():
-    """Chips to filter by category. Returns the English category, or None for 'all'."""
-    choice = st.pills(T["all"], ["All"] + CATEGORIES, selection_mode="single", default="All",
-                      key="cat_filter", label_visibility="collapsed",
-                      format_func=lambda c: T["all"] if c == "All" else CAT_AR.get(c, c))
-    return None if choice in (None, "All") else choice
+    choice = st.pills(T["all"], ["All"] + CATEGORIES, default="All", required=True,
+                      format_func=category_label, label_visibility="collapsed")
+    return None if choice == "All" else choice
 
 
-# ---------------- Card buttons ----------------
 def on_join(board, plan_id):
-    """Button callback: try to join, remember the message, open my plan's page on success."""
     ok, msg = board.join_plan(plan_id, viewer())
     flash(msg)
     if ok:
@@ -52,80 +56,84 @@ def on_join(board, plan_id):
 
 
 def render_card_button(plan, board, now):
-    """Pick the one button for this viewer: Cancel (host), Leave (member) or Join."""
     name = viewer()
     if plan.host == name:
-        if st.button(T["cancel"], key=f"cancel_{plan.id}"):
+        if st.button(T["cancel"], key=f"danger_cancel_{plan.id}", icon=":material/close:", width="stretch"):
             confirm_cancel_dialog(board, plan.id)
     elif plan.has_joined(name):
-        if st.button(T["leave"], key=f"leave_{plan.id}"):
+        if st.button(T["leave"], key=f"leave_{plan.id}", icon=":material/logout:", width="stretch"):
             confirm_leave_dialog(board, plan.id)
     else:
         closed = plan.phase(now) != "waiting"
-        label = T["join_closed"] if closed else T["full"] if plan.is_full() else T["join"]
+        if closed:
+            label = T["join_closed"]
+        elif plan.is_full():
+            label = T["full"]
+        else:
+            label = T["join"]
         disabled = closed or plan.is_full() or S.get("my_plan_id") is not None
-        st.button(label, key=f"join_{plan.id}", type="primary", disabled=disabled,
-                  on_click=on_join, args=(board, plan.id))
+        st.button(label, key=f"join_{plan.id}", type="primary", icon=":material/group_add:", width="stretch",
+                  disabled=disabled, on_click=on_join, args=(board, plan.id))
 
 
-# ---------------- Plan card ----------------
-def render_pin_card(plan, board, now):
-    """One plan card: cover, title, rows with icons, people, and the action button."""
-    minutes = plan.minutes_left(now)
-    pill = T["starts_in"].format(n=ar(minutes)) if minutes > 0 else T["started"]
-    description = f'<div class="pin-desc">{bdi(plan.description)}</div>' if plan.description else ""
-    count = T["joined_count"].format(n=ar(plan.count()), cap=ar(plan.capacity))
-    with st.container(border=True, key=f"pin_{plan.id}"):
-        st.markdown(
-            f'{cover_html(plan, pill, minutes <= 1)}'
-            f'<div class="pin-body"><div class="pin-title">{bdi(plan.title)}</div>'
-            f'{row_html(PIN, bdi(plan.place))}{row_html(CLOCK, fmt_duration(plan.duration_min))}'
-            f'{description}'
-            f'<div class="pin-people">{avatar_stack_html(plan, viewer())}'
-            f'<div><b>{count}</b>{escape(T["hosted_by"].format(name=plan.host))}</div></div></div>',
-            unsafe_allow_html=True)
+def render_card(plan, board, now):
+    with st.container(border=True, key=f"card_{plan.id}", height="stretch"):
+        st.image(cover(plan.category), width="stretch")
+
+        with st.container(horizontal=True, gap="xsmall"):
+            minutes = plan.minutes_left(now)
+            if minutes > 0:
+                st.badge(T["starts_in"].format(n=ar(minutes)), icon=":material/schedule:", color="violet")
+            else:
+                st.badge(T["started"], icon=":material/play_circle:", color="green")
+            st.badge(CAT_AR[plan.category], icon=CAT_ICON[plan.category], color="gray")
+
+        st.markdown(f"#### {plan.title}")
+        st.caption(f":material/location_on: {plan.place}  \n"
+                   f":material/timelapse: {fmt_duration(plan.duration_min)}")
+        if plan.description:
+            st.write(plan.description)
+
+        st.space("stretch")
+        count = T["joined_count"].format(n=ar(plan.count()), cap=ar(plan.capacity))
+        host = T["hosted_by"].format(name=plan.host)
+        st.progress(plan.count() / plan.capacity, text=f"{count} · {host}")
         render_card_button(plan, board, now)
 
 
-# ---------------- My plan (dedicated place at the top) ----------------
 def render_my_plan(plan, now):
-    """A card at the top of the feed for the plan I host or joined, with a button to open it."""
     role = T["my_plan_host"] if plan.host == viewer() else T["my_plan_joined"]
     if plan.phase(now) == "waiting":
         status = T["starts_in"].format(n=ar(plan.minutes_left(now)))
     else:
         status = T["running"]
-    with st.container(key="my_plan"):
-        text, button = st.columns([4, 1.4], vertical_alignment="center")
-        text.markdown(
-            f'<div class="mp-role">{role}</div><div class="mp-title">{bdi(plan.title)}</div>'
-            f'<div class="mp-meta"><span class="time-pill soon">{status}</span>'
-            f'{row_html(PIN, bdi(plan.place))}</div>', unsafe_allow_html=True)
-        button.button(T["view_plan"], key="view_my_plan", type="primary", on_click=open_plan_view)
+    with st.container(border=True, key="my_plan", horizontal=True, vertical_alignment="center"):
+        st.image(cover(plan.category), width=120)
+        with st.container(gap="xxsmall"):
+            st.badge(role, icon=":material/check_circle:", color="violet")
+            st.markdown(f"#### {plan.title}")
+            st.caption(f":material/location_on: {plan.place} · :material/schedule: {status}")
+            st.caption(T["in_plan_notice"])
+        st.button(T["view_plan"], key="view_my_plan", type="primary", icon=":material/arrow_back:",
+                  icon_position="right", on_click=open_plan_view)
 
 
-# ---------------- Feed ----------------
 def split_into_rows(plans, n):
-    """Cut the list into rows of n cards, in order, so a phone shows them soonest first."""
     return [plans[i:i + n] for i in range(0, len(plans), n)]
 
 
 def render_empty(board, message):
-    """Centered empty state: faded logo mark, the message and a 'Post a plan' button."""
-    logo = image_data_uri(str(ASSETS / "logo_mark.png"))
-    with st.container(key="empty_box"):
-        st.markdown(f'<div class="empty"><img src="{logo}">{escape(message)}</div>',
-                    unsafe_allow_html=True)
-        _, middle, _ = st.columns([1, 1, 1])
-        if middle.button(T["post"], key="empty_post", type="primary",
-                         disabled=S.get("my_plan_id") is not None):
+    with st.container(border=True, key="empty_box", horizontal_alignment="center"):
+        st.image(LOGO_MARK, width=120)
+        st.markdown(f"**{message}**", width="content")
+        if st.button(T["post"], key="empty_post", type="primary", icon=":material/add:",
+                     disabled=S.get("my_plan_id") is not None):
             post_dialog(board)
 
 
 @st.fragment(run_every=REFRESH_SECONDS)
-def render_feed(board, keyword, category):
-    """My-plan card + plan cards, refreshed every REFRESH_SECONDS seconds."""
-    if S.pop("need_rerun", False):               # a button asked for a page change
+def render_feed(board, keyword):
+    if S.pop("need_rerun", False):   # set by on_join: a button callback can't open the plan page itself
         st.rerun()
     show_flash()
     board.prune_ended_plans()
@@ -134,17 +142,20 @@ def render_feed(board, keyword, category):
     plan_id = S.get("my_plan_id")
     mine = board.get_plan_for_participant(plan_id, viewer()) if plan_id is not None else None
     if plan_id is not None and mine is None:
-        st.rerun()                               # my plan is over: the router shows the message
+        st.rerun()
     if mine is not None:
         render_my_plan(mine, now)
 
+    category = render_category_filter()
     plans = board.search_plans(keyword) if keyword else board.get_active_plans()
     if category:
         plans = [p for p in plans if p.category == category]
     if not plans:
         render_empty(board, T["no_match"] if keyword or category else T["no_plans"])
         return
+
+    st.markdown(f"##### {T['plans_title']} ({ar(len(plans))})")
     for row in split_into_rows(plans, COLUMNS):
-        for column, plan in zip(st.columns(COLUMNS, vertical_alignment="top"), row):
+        for column, plan in zip(st.columns(COLUMNS, gap="medium"), row):
             with column:
-                render_pin_card(plan, board, now)
+                render_card(plan, board, now)
