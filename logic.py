@@ -3,7 +3,6 @@ import secrets
 import threading
 from datetime import datetime, timedelta
 
-# Limits for a new plan (minutes and people)
 MIN_START_MIN = 1            
 MAX_START_MIN = 60
 
@@ -14,11 +13,9 @@ MIN_CAPACITY = 2
 MAX_CAPACITY = 12
 
 EXPIRY_GRACE_SECONDS = 10
-# The kinds of plans people can post
 CATEGORIES = ["Lunch", "Study", "Work", "Discussion", "Tuwaiq Talk", "Other"]
 
 
-# One plan: what, where, when, and who joined
 class Plan:
     def __init__(self, plan_id, title, category, place, description, host,
                  starts_in_min, duration_min, capacity, host_key):
@@ -36,11 +33,9 @@ class Plan:
         self.attendees = [host]
         self.arrived = []          # people who pressed "I arrived" at the meeting point
 
-    # When the waiting ends and the plan starts
     def start_time(self):
         return self.created_at + timedelta(minutes=self.starts_in_min)
 
-    # When the plan is over
     def ends_at(self):
         return self.start_time() + timedelta(minutes=self.duration_min)
 

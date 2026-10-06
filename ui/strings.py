@@ -27,7 +27,7 @@ CAT_AR = {
     "Study": "دراسة",
     "Work": "شغل",
     "Discussion": "نقاش",
-    "Tuwaiq Talk": "حديث طويق",
+    "Tuwaiq Talk": "Tuwaiq Talk",
     "Other": "غيره",
 }
 
