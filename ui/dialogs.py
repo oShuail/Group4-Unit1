@@ -1,39 +1,183 @@
 import streamlit as st
 
-from ui.state import S, flash, leave_plan_state, me
+from ui.state import (
+    S,
+    flash,
+    leave_plan_state,
+    me,
+)
 from ui.strings import T
 
 
 def plan_title(board, plan_id):
-    plan = board.get_plan_for_participant(plan_id, me())
-    return plan.title if plan else ""
+    plan = board.get_plan_for_participant(
+        plan_id,
+        me(),
+    )
+
+    return (
+        plan.title
+        if plan
+        else ""
+    )
 
 
-@st.dialog(T["dlg_leave"], icon=":material/logout:")
-def confirm_leave_dialog(board, plan_id):
-    st.write(T["dlg_leave_q"])
-    st.markdown(f"**{plan_title(board, plan_id)}**")
-    stay, leave = st.columns(2)
-    if stay.button(T["stay"], type="primary", width="stretch"):
-        st.rerun()
-    if leave.button(T["leave"], icon=":material/logout:", width="stretch"):
-        ok, msg = board.leave_plan(plan_id, me())
-        flash(msg)
-        if ok:
-            leave_plan_state()
-        st.rerun()
+# =========================================
+# مغادرة الخطة
+# =========================================
+
+@st.dialog("مغادرة الخطة")
+def confirm_leave_dialog(
+    board,
+    plan_id,
+):
+
+    st.html(
+        """
+        <style>
+
+        .leave-confirm-text {
+            width: 100%;
+
+            direction: rtl;
+            text-align: center;
+
+            color: #111111;
+
+            font-size: 16px;
+            font-weight: 400;
+
+            margin: 4px auto 18px auto;
+        }
+
+        </style>
+
+        <div class="leave-confirm-text">
+            متأكد من مغادرة الخطة؟
+        </div>
+        """
+    )
+
+    # في RTL:
+    # أول عمود = يمين
+    # ثاني عمود = يسار
+
+    leave_col, back_col = st.columns(
+        2,
+        gap="small",
+    )
+
+    # يمين
+    with leave_col:
+
+        if st.button(
+            "مغادرة الخطة",
+            key="confirm_leave_plan",
+            width="stretch",
+        ):
+
+            ok, msg = board.leave_plan(
+                plan_id,
+                me(),
+            )
+
+            flash(msg)
+
+            if ok:
+                leave_plan_state()
+
+            st.rerun()
+
+    # يسار
+    with back_col:
+
+        if st.button(
+            "ارجع",
+            key="leave_back",
+            type="primary",
+            width="stretch",
+        ):
+
+            st.rerun()
 
 
-@st.dialog(T["dlg_cancel"], icon=":material/event_busy:")
-def confirm_cancel_dialog(board, plan_id):
-    st.write(T["dlg_cancel_q"])
-    st.markdown(f"**{plan_title(board, plan_id)}**")
-    back, cancel = st.columns(2)
-    if back.button(T["go_back"], type="primary", width="stretch"):
-        st.rerun()
-    if cancel.button(T["cancel"], key="danger_dlg_cancel", icon=":material/close:", width="stretch"):
-        ok, msg = board.cancel_plan(plan_id, me(), S.get("my_host_key", ""))
-        flash(msg)
-        if ok:
-            leave_plan_state()
-        st.rerun()
+# =========================================
+# إلغاء الخطة
+# =========================================
+
+@st.dialog("الغاء الخطه")
+def confirm_cancel_dialog(
+    board,
+    plan_id,
+):
+
+    st.html(
+        """
+        <style>
+
+        .cancel-confirm-text {
+            width: 100%;
+
+            direction: rtl;
+            text-align: center;
+
+            color: #111111;
+
+            font-size: 16px;
+            font-weight: 400;
+
+            margin: 4px auto 18px auto;
+        }
+
+        </style>
+
+        <div class="cancel-confirm-text">
+            متأكد بتلغي الخطه؟
+        </div>
+        """
+    )
+
+    # إلغاء الخطة يمين
+    # ارجع يسار
+
+    cancel_col, back_col = st.columns(
+        2,
+        gap="small",
+    )
+
+    # يمين
+    with cancel_col:
+
+        if st.button(
+            "الغاء الخطه",
+            key="danger_dlg_cancel",
+            width="stretch",
+        ):
+
+            ok, msg = board.cancel_plan(
+                plan_id,
+                me(),
+                S.get(
+                    "my_host_key",
+                    "",
+                ),
+            )
+
+            flash(msg)
+
+            if ok:
+                leave_plan_state()
+
+            st.rerun()
+
+    # يسار
+    with back_col:
+
+        if st.button(
+            "ارجع",
+            key="cancel_back",
+            type="primary",
+            width="stretch",
+        ):
+
+            st.rerun()

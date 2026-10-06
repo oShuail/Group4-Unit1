@@ -24,3 +24,314 @@
 /* Green "I arrived" button */
 .st-key-arrived_btn button { background: #2E9E5B; border-color: #2E9E5B; color: white; }
 .st-key-arrived_btn button:disabled { background: #DDF3E4; border-color: #DDF3E4; color: #1E7B3C; }
+/* ===== Name page only ===== */
+
+.stApp:has(.st-key-name_page) {
+    background:
+
+        /* الدائرة الصغيرة فوق */
+        radial-gradient(
+            circle at 77% 15%,
+            rgba(102, 67, 201, 0.10) 0 26px,
+            transparent 27px
+        ),
+
+        /* الدائرة يمين بالنص */
+        radial-gradient(
+            circle at 99% 58%,
+            rgba(102, 67, 201, 0.08) 0 42px,
+            transparent 43px
+        ),
+
+        /* الدائرة الكبيرة أسفل اليسار */
+        radial-gradient(
+            circle at -2% 82%,
+            rgba(102, 67, 201, 0.06) 0 145px,
+            transparent 146px
+        ),
+
+        /* القوس الكبير فوق اليمين */
+        radial-gradient(
+            circle at 105% -5%,
+            transparent 0 250px,
+            rgba(102, 67, 201, 0.06) 251px 253px,
+            transparent 254px
+        ),
+
+        /* القوس الكبير وسط الصفحة */
+        radial-gradient(
+            circle at 73% 45%,
+            transparent 0 430px,
+            rgba(102, 67, 201, 0.05) 431px 433px,
+            transparent 434px
+        ),
+
+        linear-gradient(
+            180deg,
+            #fbfaff 0%,
+            #ffffff 55%,
+            #fbfaff 100%
+        );
+
+    min-height: 100vh;
+}
+
+
+.stApp:has(.st-key-name_page)
+[data-testid="stMainBlockContainer"] {
+    max-width: 100%;
+    padding-top: 3rem;
+}
+
+
+/* نقاط فوق اليسار */
+.st-key-name_page::before {
+    content: "";
+    position: fixed;
+
+    top: 9%;
+    left: 5%;
+
+    width: 170px;
+    height: 115px;
+
+    background-image:
+        radial-gradient(
+            circle,
+            rgba(102, 67, 201, 0.15) 0 4px,
+            transparent 4.5px
+        );
+
+    background-size: 28px 28px;
+
+    pointer-events: none;
+}
+
+
+/* نقاط تحت اليمين */
+.st-key-name_page::after {
+    content: "";
+    position: fixed;
+
+    right: 5%;
+    bottom: 6%;
+
+    width: 170px;
+    height: 115px;
+
+    background-image:
+        radial-gradient(
+            circle,
+            rgba(102, 67, 201, 0.14) 0 4px,
+            transparent 4.5px
+        );
+
+    background-size: 28px 28px;
+
+    pointer-events: none;
+}
+
+
+/* الكارد */
+.stApp:has(.st-key-name_page)
+.st-key-name_card {
+    background: white !important;
+
+    border: 1px solid #ded8f3 !important;
+    border-radius: 18px !important;
+
+    padding: 28px 24px !important;
+
+    box-shadow:
+        0 5px 18px rgba(66, 45, 126, 0.06) !important;
+}
+
+
+/* العنوان */
+.stApp:has(.st-key-name_page)
+.st-key-name_card h3 {
+    text-align: center !important;
+
+    font-size: 28px !important;
+
+    color: #211b36 !important;
+}
+
+
+/* النص الصغير */
+.stApp:has(.st-key-name_page)
+.st-key-name_card
+[data-testid="stCaptionContainer"] {
+    text-align: center !important;
+
+    color: #8e899c !important;
+}
+
+
+/* خانة الاسم */
+.stApp:has(.st-key-name_page)
+.st-key-name_card
+[data-baseweb="input"] {
+    min-height: 58px !important;
+
+    background: #f5f1ff !important;
+
+    border: 0 !important;
+    border-radius: 16px !important;
+}
+/* فيلد الاسم أقصر شوي من عرض البوكس */
+.stApp:has(.st-key-name_page)
+.st-key-name_card
+[data-testid="stTextInput"] {
+    width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+
+/* زر يلا مشينا قريب من عرض الفيلد لكن أصغر شوي */
+.stApp:has(.st-key-name_page)
+.st-key-name_card
+.stFormSubmitButton {
+    width: 86% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.stApp:has(.st-key-name_page)
+.st-key-name_card
+.stFormSubmitButton button {
+    width: 100% !important;
+}
+/* =========================================
+   FEED PAGE
+   ========================================= */
+
+.st-key-feed_header {
+    padding-top: 8px;
+    margin-bottom: 12px;
+}
+
+
+/* هلا رند */
+.feed-greeting {
+    text-align: right;
+
+    font-size: 31px;
+    font-weight: 750;
+
+    color: #211b36;
+
+    margin-top: 22px;
+    margin-bottom: 5px;
+
+    line-height: 1.3;
+}
+
+
+/* النص تحت الترحيب */
+.feed-subtitle {
+    text-align: right;
+
+    font-size: 15px;
+    font-weight: 400;
+
+    color: #8d8999;
+
+    margin-bottom: 16px;
+}
+
+
+/* البحث والقائمة */
+.st-key-feed_header [data-baseweb="input"],
+.st-key-feed_header [data-baseweb="select"] > div {
+    min-height: 48px;
+
+    background: #f5f1ff !important;
+
+    border: 1px solid transparent !important;
+    border-radius: 14px !important;
+
+    box-shadow: none !important;
+}
+
+
+/* عند الضغط */
+.st-key-feed_header [data-baseweb="input"]:focus-within,
+.st-key-feed_header [data-baseweb="select"] > div:focus-within {
+    border-color: #cfc4ed !important;
+}
+
+
+/* بوكس الحالة الفاضية */
+.st-key-empty_box {
+    max-width: 760px;
+
+    margin: 18px auto 0 auto !important;
+
+    padding: 28px 30px 24px 30px !important;
+
+    border: 1px solid #e4def3 !important;
+    border-radius: 18px !important;
+
+    background: white !important;
+
+    box-shadow:
+        0 6px 22px rgba(57, 39, 112, 0.06) !important;
+}
+
+
+/* اللوقو داخل البوكس */
+.st-key-empty_box [data-testid="stImage"] {
+    margin-bottom: -5px;
+}
+
+
+/* النص داخل empty state */
+.empty-title {
+    text-align: center;
+
+    font-size: 19px;
+    font-weight: 650;
+
+    color: #211b36;
+
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+
+/* زر انشر خطة داخل البوكس */
+.st-key-empty_box button {
+    min-height: 42px !important;
+
+    padding-left: 22px !important;
+    padding-right: 22px !important;
+
+    border-radius: 999px !important;
+}
+
+
+/* زر انشر خطة فوق */
+.st-key-open_post button {
+    min-height: 44px !important;
+
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+
+    border-radius: 999px !important;
+}
+
+
+/* زر الاسم فوق */
+.st-key-profile button {
+    min-height: 44px !important;
+
+    border-radius: 999px !important;
+}
+
+
+/* تقليل الفراغ العام تحت الهيدر */
+.st-key-feed_header + div {
+    margin-top: 4px;
+}

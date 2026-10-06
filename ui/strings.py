@@ -23,11 +23,11 @@ MSG = {
 }
 
 CAT_AR = {
-    "Lunch": "غداء",
+    "Lunch": "كافتيريا",
     "Study": "دراسة",
     "Work": "شغل",
     "Discussion": "نقاش",
-    "Tuwaiq Talk": "Tuwaiq Talk",
+    "Tuwaiq Talk": "حديث طويق",
     "Other": "غيره",
 }
 
