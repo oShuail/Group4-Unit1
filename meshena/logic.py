@@ -3,6 +3,7 @@ import secrets
 import threading
 from datetime import datetime, timedelta
 
+# Limits for a new plan (minutes and people)
 MIN_START_MIN = 1            
 MAX_START_MIN = 60
 
@@ -13,9 +14,11 @@ MIN_CAPACITY = 2
 MAX_CAPACITY = 12
 
 EXPIRY_GRACE_SECONDS = 10
+# The kinds of plans people can post
 CATEGORIES = ["Lunch", "Study", "Work", "Discussion", "Tuwaiq Talk", "Other"]
 
 
+# One plan: what, where, when, and who joined
 class Plan:
     def __init__(self, plan_id, title, category, place, description, host,
                  starts_in_min, duration_min, capacity, host_key):
@@ -31,13 +34,17 @@ class Plan:
         self.host_key = host_key   # secret: only the host's browser has it, cancel_plan checks it
         self.created_at = datetime.now()
         self.attendees = [host]
+        self.arrived = []          # people who pressed "I arrived" at the meeting point
 
+    # When the waiting ends and the plan starts
     def start_time(self):
         return self.created_at + timedelta(minutes=self.starts_in_min)
 
+    # When the plan is over
     def ends_at(self):
         return self.start_time() + timedelta(minutes=self.duration_min)
 
+    # "waiting" before it starts, "running" while it happens, "ended" after
     def phase(self, now):
         if now < self.start_time():
             return "waiting"
@@ -46,21 +53,31 @@ class Plan:
         else:
             return "ended"
 
+    # Seconds left on the countdowns (never below zero)
     def seconds_to_start(self, now):
         return max(0, int((self.start_time() - now).total_seconds()))
 
     def seconds_to_end(self, now):
         return max(0, int((self.ends_at() - now).total_seconds()))
 
+    # Minutes until the start, rounded up for the cards
     def minutes_left(self, now):
         return math.ceil(self.seconds_to_start(now) / 60)
 
+    # Names are compared without caring about capital letters
     def has_joined(self, name):
         for person in self.attendees:
             if person.lower() == name.strip().lower():
                 return True
         return False
 
+    def has_arrived(self, name):
+        for person in self.arrived:
+            if person.lower() == name.strip().lower():
+                return True
+        return False
+
+    # How many people are in the plan, and if there is no seat left
     def count(self):
         return len(self.attendees)
 
@@ -68,6 +85,7 @@ class Plan:
         return self.count() >= self.capacity
 
 
+# All the plans of the app, shared by everyone who opens it
 class PlanBoard:
     def __init__(self):
         self.plans = {}
@@ -82,6 +100,7 @@ class PlanBoard:
             return None
         return plan
 
+    # Returns a list of problems with the form, an empty list means all good
     def validate_input(self, title, place, host, starts_in_min, duration_min=60, capacity=10):
         errors = []
         if host.strip() == "":
@@ -98,6 +117,7 @@ class PlanBoard:
             errors.append("Capacity must be between 2 and 50")
         return errors
 
+    # Adds a new plan and gives the host a secret key to cancel it later
     def create_plan(self, title, category, place, starts_in_min, description, host,
                     duration_min=60, capacity=10):
         errors = self.validate_input(title, place, host, starts_in_min, duration_min, capacity)
@@ -116,6 +136,7 @@ class PlanBoard:
             self.next_id += 1
         return (True, "Plan posted", plan_id, host_key)
 
+    # Plans people can still see on the board, soonest first
     def get_active_plans(self):
         now = datetime.now()
         grace = timedelta(seconds=EXPIRY_GRACE_SECONDS)
@@ -123,6 +144,7 @@ class PlanBoard:
             visible = [p for p in self.plans.values() if now < p.start_time() + grace]
         return sorted(visible, key=lambda plan: plan.start_time())
 
+    # Plans whose title, place or category has the keyword
     def search_plans(self, keyword):
         keyword = keyword.strip().lower()
         matches = []
@@ -132,6 +154,7 @@ class PlanBoard:
                 matches.append(plan)
         return matches
 
+    # The plan only if this person is in it and it did not end
     def get_plan_for_participant(self, plan_id, name):
         with self.lock:
             plan = self.find_alive(plan_id)
@@ -139,6 +162,7 @@ class PlanBoard:
                 return plan
             return None
 
+    # Every action returns (ok, message) so the screen knows what to show
     def join_plan(self, plan_id, name):
         name = name.strip()
         with self.lock:
@@ -155,6 +179,7 @@ class PlanBoard:
                 plan.attendees.append(name)
                 return (True, "You joined")
 
+    # A joined person leaves, the host has to cancel instead
     def leave_plan(self, plan_id, name):
         name = name.strip()
         with self.lock:
@@ -170,8 +195,25 @@ class PlanBoard:
                     if person.lower() == name.lower():
                         plan.attendees.remove(person)
                         break
+                plan.arrived = [person for person in plan.arrived if person.lower() != name.lower()]
                 return (True, "You left the plan")
 
+    # The person pressed "I arrived", the others see them in green
+    def mark_arrived(self, plan_id, name):
+        name = name.strip()
+        with self.lock:
+            plan = self.find_alive(plan_id)
+            if plan is None:
+                return (False, "Plan not found or expired")
+            elif not plan.has_joined(name):
+                return (False, "You are not in this plan")
+            elif plan.has_arrived(name):
+                return (False, "You already arrived")
+            else:
+                plan.arrived.append(name)
+                return (True, "You arrived")
+
+    # Only the host with the right key can cancel
     def cancel_plan(self, plan_id, name, host_key):
         with self.lock:
             plan = self.find_alive(plan_id)
@@ -183,6 +225,7 @@ class PlanBoard:
                 del self.plans[plan_id]
                 return (True, "Plan cancelled")
 
+    # Removes plans that are over
     def prune_ended_plans(self):
         now = datetime.now()
         with self.lock:
@@ -193,6 +236,7 @@ class PlanBoard:
             for plan_id in ended:   # delete after the loop: changing a dict while looping over it crashes
                 del self.plans[plan_id]
 
+    # Changes a person's name in every plan they are in
     def rename_person(self, old, new):
         old = old.strip().lower()
         new = new.strip()
@@ -205,6 +249,9 @@ class PlanBoard:
                 for i in range(len(plan.attendees)):
                     if plan.attendees[i].lower() == old:
                         plan.attendees[i] = new
+                for i in range(len(plan.arrived)):
+                    if plan.arrived[i].lower() == old:
+                        plan.arrived[i] = new
         return (True, "Name updated")
 
     # For the tests only. The app never calls this.

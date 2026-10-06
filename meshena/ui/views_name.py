@@ -18,8 +18,9 @@ def render_name_page():
                 submitted = st.form_submit_button(T["name_btn"], type="primary", width="stretch",
                                                   icon=":material/arrow_back:", icon_position="right")
             if submitted:
-                if name.strip():
-                    S["name"] = name.strip()
+                name = name.replace("#", "").strip()   # "#" is used to separate the name from the id
+                if name:
+                    S["name"] = name
                     st.rerun()
                 else:
                     st.error(T["name_empty"], icon=":material/error:")

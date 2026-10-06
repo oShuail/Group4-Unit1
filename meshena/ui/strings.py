@@ -16,6 +16,10 @@ MSG = {
     "Name updated": "تغير الاسم",
     "Plan is full": "الخطة مكتمله", 
     "Capacity must be between 2 and 10": "عدد الاشخاص لازم يكون بين ٢ و ١٠",
+
+  
+    "You arrived": "سجلنا وصولك",
+    "You already arrived": "وصولك مسجل من قبل",
 }
 
 CAT_AR = {
@@ -110,6 +114,19 @@ T = {
     "f_title_hint": "مثلا غداء في الكافتيريا",
     "f_place_hint": "مثلا مبنى ٤ الدور الارضي",
     "f_description_hint": "كلمتين عن الخطة",
+
+    # added: new UI sections, create page preview and "I arrived"
+    "my_plans": "خطتي",
+    "joined_section": "الخطة الي منضم لها",
+    "other_plans": "باقي الخطط",
+    "no_other_plans": "ما فيه خطط ثانية الحين",
+    "in_other_plan": "منضم لخطة ثانية",
+    "preview": "كذا بتطلع خطتك",
+    "preview_title": "اسم خطتك",
+    "preview_place": "مكان الخطة",
+    "arrive": "وصلت المكان",
+    "arrived_done": "وصلت",
+    "arrived_tag": "وصل",
 }
 
 AR_DIGITS = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")

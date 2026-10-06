@@ -3,7 +3,7 @@ from pathlib import Path
 import streamlit as st
 from PIL import Image
 
-from ui.strings import CAT_AR, T
+from ui.strings import ar
 
 ASSETS = Path(__file__).parent / "assets"
 LOGO = str(ASSETS / "logo_full.png")
@@ -23,12 +23,6 @@ def load_css():
     st.html(ASSETS / "style.css")
 
 
-def category_label(category):
-    if category == "All":
-        return T["all"]
-    return f"{CAT_ICON[category]} {CAT_AR[category]}"
-
-
 @st.cache_resource
 def cover(category, ratio=16 / 9):
     file_name = category.lower().replace(" ", "_") + ".png"
@@ -37,3 +31,17 @@ def cover(category, ratio=16 / 9):
     new_height = int(width / ratio)
     top = (height - new_height) // 2
     return image.crop((0, top, width, top + new_height))
+
+
+def fmt_time(moment):
+    # 13:05 -> "١:٠٥ م"
+    hour = moment.hour % 12
+    if hour == 0:
+        hour = 12
+    suffix = "ص" if moment.hour < 12 else "م"
+    return f"{ar(hour)}:{ar(f'{moment.minute:02d}')} {suffix}"
+
+
+def time_window(plan):
+    # When the plan starts and ends, like "١:٠٥ م - ٢:٠٥ م"
+    return f"{fmt_time(plan.start_time())} - {fmt_time(plan.ends_at())}"

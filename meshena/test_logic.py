@@ -108,6 +108,21 @@ def test_leave():
     assert board.leave_plan(1, "Ali") == (False, "Plan not found or expired")
 
 
+def test_arrived():
+    board, plan, key = new_board()
+    board.join_plan(1, "Sara")
+    assert board.mark_arrived(1, "Omar") == (False, "You are not in this plan")
+    assert board.mark_arrived(99, "Sara") == (False, "Plan not found or expired")
+    assert board.mark_arrived(1, "sara") == (True, "You arrived")
+    assert board.mark_arrived(1, "Sara") == (False, "You already arrived")
+    assert board.mark_arrived(1, "Ali") == (True, "You arrived")
+    assert plan.has_arrived("ALI") and not plan.has_arrived("Omar")
+    board.rename_person("Ali", "Ahmed")
+    assert plan.has_arrived("Ahmed")
+    board.leave_plan(1, "Sara")
+    assert plan.arrived == ["Ahmed"]
+
+
 def test_cancel():
     board, plan, key = new_board()
     assert board.cancel_plan(1, "Sara", key) == (False, "Only the host can cancel")

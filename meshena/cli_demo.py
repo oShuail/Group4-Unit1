@@ -1,9 +1,11 @@
 from datetime import datetime
 
-from logic import PlanBoard, CATEGORIES
+from logic import (PlanBoard, CATEGORIES, MIN_START_MIN, MAX_START_MIN, MIN_DURATION_MIN,
+                   MAX_DURATION_MIN, MIN_CAPACITY, MAX_CAPACITY)
 
 line = lambda p: (f"[{p.id}] {p.title} @ {p.place} | {p.category} | {status(p)} | "
-                  f"{p.count()}/{p.capacity} people: {', '.join(p.attendees)}")
+                  f"{p.count()}/{p.capacity} people: {', '.join(p.attendees)} | "
+                  f"arrived: {', '.join(p.arrived) or '-'}")
 
 
 def status(plan):
@@ -40,9 +42,9 @@ def post_plan(board, name, keys):
     print("Categories:", ", ".join(f"{i + 1}={c}" for i, c in enumerate(CATEGORIES)))
     choice = ask_number("Category number", 1, len(CATEGORIES), len(CATEGORIES))
     place = input("Place: ")
-    wait = ask_number("Starts in (minutes)", 1, 60, 5)
-    duration = ask_number("Lasts (minutes)", 5, 240, 60)
-    capacity = ask_number("Max people", 2, 50, 10)
+    wait = ask_number("Starts in (minutes)", MIN_START_MIN, MAX_START_MIN, 5)
+    duration = ask_number("Lasts (minutes)", MIN_DURATION_MIN, MAX_DURATION_MIN, 60)
+    capacity = ask_number("Max people", MIN_CAPACITY, MAX_CAPACITY, 4)
     description = input("Description (optional): ")
 
     ok, msg, plan_id, host_key = board.create_plan(title, CATEGORIES[choice - 1], place, wait,
@@ -62,7 +64,7 @@ def main():
     while True:
         board.prune_ended_plans()
         print(f"\n=== Join Me ({name}) ===")
-        print("1 Post  2 Show  3 Search  4 Join  5 Leave  6 Cancel  7 Exit")
+        print("1 Post  2 Show  3 Search  4 Join  5 Leave  6 Cancel  7 I arrived  8 Exit")
         choice = input("Choose: ").strip()
 
         if choice == "1":
@@ -82,10 +84,13 @@ def main():
             ok, msg = board.cancel_plan(plan_id, name, keys.get(plan_id, ""))
             print(msg)
         elif choice == "7":
+            ok, msg = board.mark_arrived(ask_number("Plan number", 1, 9999, 1), name)
+            print(msg)
+        elif choice == "8":
             print("Bye!")
             break
         else:
-            print("Choose a number from 1 to 7.")
+            print("Choose a number from 1 to 8.")
 
 
 main()
