@@ -423,7 +423,7 @@ All the keys are listed in [section 8](#8-what-each-browser-tab-remembers-sessio
 | `LOGO`, `LOGO_MARK` | paths to `logo_full.png` (logo with the name) and `logo_mark.png` (icon only) | one place for the logo paths | `LOGO`: the name page and every top bar. `LOGO_MARK`: the empty feed box. |
 | `CAT_ICON` | dict: category → Material icon, like `":material/restaurant:"` | each category gets an icon in its badge | `render_card`, `render_plan_page` |
 | `load_css()` | adds `assets/style.css` to the page with `st.html` | the few design rules the theme can't do (see 6.12) | `main` |
-| `cover(category, ratio=16/9)` | opens the category picture and cuts the top and bottom so it is wider. `@st.cache_resource` cuts each picture once per size. | the pictures are 960×720 (too tall for a card) | `render_card` (16:9), `render_plan_page` (2.2) |
+| `cover(category, ratio=16/9)` | opens the category picture and cuts the top and bottom so it is wider. `@st.cache_resource` cuts each picture once per size. | the pictures are 960×720 (too tall for a card) | `render_card` (2.4), `render_plan_page` (3) |
 | `fmt_time(moment)` | a clock time in Arabic: 13:05 → `"١:٠٥ م"` (`ص` before noon, `م` after) | to show real clock times | `time_window` |
 | `time_window(plan)` | `"start - end"`, like `"١:٠٥ م - ٢:٠٥ م"` | people want to know **when**, not only "in N minutes" | `render_card`, `render_plan_page` |
 
@@ -447,7 +447,7 @@ Details:
 | Constant | Meaning |
 |---|---|
 | `REFRESH_SECONDS = 10` | the feed redraws itself every 10 seconds |
-| `COLUMNS = 2` | cards per row on a computer (on a phone they stack) |
+| `COLUMNS = 3` | cards per row on a computer (on a phone they stack) |
 
 | Function | What it does | Why we need it | Where it is used |
 |---|---|---|---|
@@ -636,7 +636,7 @@ The block at the bottom (`if __name__ == "__main__":`) runs every `test_` functi
 | `st.popover` | a button that opens a small box | the name menu | change your name in place |
 | `st.container` | a box that groups elements. `border=True` draws a frame; `horizontal=True` puts children side by side; `horizontal_alignment` / `vertical_alignment` line them up; `gap`, `width`, `height` set spacing and size; `key` gives a CSS class | everywhere | cards, top bars, centering |
 | `st.columns` | side-by-side columns (they stack on phones) | the feed grid, the create page, the plan page, the form inputs, the pop-up buttons | layout |
-| `st.space` | empty space; `"stretch"` takes all the free space | name page, top bars, cards | push things apart or down |
+| `st.space` | empty space; `"stretch"` takes all the free space | name page, top bars, the error dialog | push things apart or down |
 | `st.image` | shows a picture | logos, covers | pictures |
 | `st.markdown` | formatted text: `##` heading, `**bold**`, `:material/icon:` an icon, `:violet[…]` / `:green[…]` colored text | headings, titles, participants | text with style |
 | `st.caption` | small grey text | subtitles, host / place / time, notes | less important text |

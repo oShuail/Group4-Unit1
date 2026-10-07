@@ -243,7 +243,7 @@ def render_create_page(board):
 
         st.image(
             LOGO,
-            width=190,
+            width=160,
         )
 
         st.space("stretch")
@@ -272,6 +272,7 @@ def render_create_page(board):
         with st.container(
             border=True,
             key="form_card",
+            gap="xsmall",
         ):
 
             st.caption(

@@ -19,7 +19,7 @@ from ui.strings import CAT_AR, CAT_EN, MSG, T, ar
 
 
 REFRESH_SECONDS = 10
-COLUMNS = 2
+COLUMNS = 3
 
 
 def render_name_menu(board):
@@ -85,7 +85,7 @@ def render_top_bar(board):
     ):
         st.image(
             LOGO,
-            width=190,
+            width=160,
         )
 
         st.space("stretch")
@@ -234,14 +234,13 @@ def render_card(
         border=True,
         key=f"card_{plan.id}",
         height="content",
-        width=(
-            "stretch"
-            if preview
-            else 330
-        ),
+        gap="xsmall",
     ):
         st.image(
-            cover(plan.category),
+            cover(
+                plan.category,
+                ratio=2.4,
+            ),
             width="stretch",
         )
 
@@ -301,8 +300,6 @@ def render_card(
         # عدد المنضمين + الأسماء + progress
         # أما preview ما يظهر فيه شيء منهم
         if not preview:
-
-            st.space("small")
 
             count = (
                 T["joined_count"]
@@ -385,7 +382,7 @@ def render_empty(message):
     ):
         st.image(
             LOGO_MARK,
-            width=190,
+            width=140,
         )
 
         st.markdown(

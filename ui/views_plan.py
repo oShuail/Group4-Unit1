@@ -186,28 +186,25 @@ def render_plan_page(board, plan):
 
             margin-left: 0 !important;
             margin-right: auto !important;
-
-            padding-top: 22px !important;
         }
 
         .st-key-plan_card {
             padding: 14px !important;
         }
 
-        .st-key-plan_card h2 {
+        .st-key-plan_card h3 {
             margin-top: 5px !important;
             margin-bottom: 3px !important;
             line-height: 1.15 !important;
         }
 
-        .st-key-plan_card p {
-            margin-top: 1px !important;
-            margin-bottom: 2px !important;
-        }
-
         .st-key-plan_card [data-testid="stCaptionContainer"] {
             margin-top: 1px !important;
             margin-bottom: 3px !important;
+        }
+
+        .st-key-plan_card [data-testid="stCaptionContainer"] p {
+            margin-bottom: 0 !important;
         }
 
         .st-key-plan_card [data-testid="stVerticalBlock"] {
@@ -299,7 +296,7 @@ def render_plan_page(board, plan):
 
         st.image(
             LOGO,
-            width=190,
+            width=160,
         )
 
         st.space("stretch")
@@ -326,12 +323,13 @@ def render_plan_page(board, plan):
             with st.container(
                 border=True,
                 key="plan_card",
+                gap="xsmall",
             ):
 
                 st.image(
                     cover(
                         plan.category,
-                        ratio=2.2,
+                        ratio=3,
                     ),
                     width="stretch",
                 )
@@ -366,42 +364,28 @@ def render_plan_page(board, plan):
                     )
 
                 st.markdown(
-                    f"## {plan.title}"
+                    f"### {plan.title}"
                 )
 
                 st.caption(
                     T[key + "_sub"]
                 )
 
+                # all four info lines in one block, so there is no gap between them
                 st.html(
                     f"""
                     <div class="plan-info-line">
                         <span class="plan-info-label">المكان:</span>
                         {plan.place}
                     </div>
-                    """
-                )
-
-                st.html(
-                    f"""
                     <div class="plan-info-line">
                         <span class="plan-info-label">الوقت:</span>
                         {time_window(plan)}
                     </div>
-                    """
-                )
-
-                st.html(
-                    f"""
                     <div class="plan-info-line">
                         <span class="plan-info-label">المدة:</span>
                         {fmt_duration(plan.duration_min)}
                     </div>
-                    """
-                )
-
-                st.html(
-                    f"""
                     <div class="plan-info-line">
                         <span class="plan-info-label">مع:</span>
                         {show_name(plan.host)}
